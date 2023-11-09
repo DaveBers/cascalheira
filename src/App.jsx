@@ -115,7 +115,7 @@ function App() {
     setTodos(newTodos);
     fs.writeFileSync('./public/user.json', JSON.stringify({ data: newTodos }))
   };
-
+  
   const removeTodo = (id) => {
     const newTodos = [...todos];
     const filteredTodos = newTodos.filter(todo => 
