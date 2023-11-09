@@ -2,8 +2,6 @@ import { useState } from 'react'
 
 import "./App.css"
 
-const fs = require('fs');
-
 function eVazio(_str) {
   if (_str == null || _str == "")
       return true;
@@ -113,7 +111,6 @@ function App() {
     ];
 
     setTodos(newTodos);
-    fs.writeFileSync('./public/user.json', JSON.stringify({ data: newTodos }))
   };
   
   const removeTodo = (id) => {
