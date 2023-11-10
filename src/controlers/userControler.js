@@ -8,11 +8,11 @@ const userControler = {
                 id: req.body.id,
                 nome: req.body.nome,
                 CPF: req.body.CPF,
-                aniversario: req.body.aniversario,
-                comidaFavorita: req.body.comidaFavorita
+                dataNasc: req.body.dataNasc,
+                comida: req.body.comida
             };
-        
-            const response = await UsersModel.create(user);
+            console.log(user)
+            const response = await userModel.create(user);
 
             res.status(201).json({response, msg: "Serviço criado com sucesso!"})
 

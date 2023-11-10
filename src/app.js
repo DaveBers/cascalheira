@@ -1,6 +1,7 @@
 const express = require("express");
 const cors = require ("cors");
 const app = express();
+const PORT = 5174
 
 app.use(cors());
 
@@ -14,6 +15,6 @@ const routes = require("./routes/router");
 
 app.use("/api", routes);
 
-app.listen(5173, function(){
-  console.log("Servidor Online");
+app.listen(PORT, function(){
+  console.log(`Servidor Online, ${PORT}`);
 })
