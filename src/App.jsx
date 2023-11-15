@@ -1,159 +1,218 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react';
+import axios from 'axios';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
-import "./App.css"
+function MyForm({ addTodo }) {
+  const [name, setName] = useState('');
+  const [CPF, setCPF] = useState('');
+  const [aniversario, setAniversario] = useState('');
+  const [comida, setComida] = useState('');
 
-function eVazio(_str) {
-  if (_str == null || _str == "")
-      return true;
-  return false;
-}
-
-function validar() {
-
-  if (eVazio(nome) || eVazio(CPF)) {
-    alert('Nome e CPF são campos obrigatórios.');
-  } else {
-    const cliente = {
-      clienteId,
-      nome,
-      CPF,
-      aniversario,
-      comida,
-    };
-    console.log(cliente);
-  }
-}
-
-function MyForm ( {addTodo} ){
-  const [name, setName] = useState("");
-  const [CPF, setCPF] = useState("");
-  const [aniversario, setAniversario] = useState("");
-  const [comida, setComida] = useState("");
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!name || !CPF) {
-      alert('Nome e CPF são campos obrigatórios.');
+      toast.error('Nome e CPF são campos obrigatórios.');
+      return;
     }
-    addTodo(name, CPF, aniversario, comida);
-    setName("");
-    setCPF("");
-    setAniversario("");
-    setComida("");
+
+    try {
+      await addTodo(name, CPF, aniversario, comida);
+      setName('');
+      setCPF('');
+      setAniversario('');
+      setComida('');
+    } catch (error) {
+      toast.error(error.message);
+    }
   };
-  return(
+
+  return (
     <div className="center">
       <form name="FrmCadastroCliente" method="post" id="cadastro_usuarios_form" onSubmit={handleSubmit}>
-        
         <label>Nome</label>
-        <input type="text" placeholder='Insira seu nome...'
-         value={name}
-         onChange={(e) => setName(e.target.value)}/>
-        
+        <input
+          type="text"
+          placeholder="Insira seu nome..."
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+        />
+
         <label>CPF</label>
-        <input type="text" placeholder='Insira seu CPF...' 
-        value={CPF}
-        onChange={(e) => setCPF(e.target.value)}/>
+        <input
+          type="text"
+          placeholder="Insira seu CPF..."
+          value={CPF}
+          onChange={(e) => setCPF(e.target.value)}
+        />
 
         <label>Data de Aniversário</label>
-        <input type="text" placeholder='Insira sua data de aniversário...' 
-        value={aniversario}
-        onChange={(e) => setAniversario(e.target.value)}/>
+        <input
+          type="text"
+          placeholder="Insira sua data de aniversário..."
+          value={aniversario}
+          onChange={(e) => setAniversario(e.target.value)}
+        />
 
         <label>Comida Favorita</label>
-        <input type="text" placeholder='Insira sua comida favorita...' 
-        value={comida}
-        onChange={(e) => setComida(e.target.value)}/>
+        <input
+          type="text"
+          placeholder="Insira sua comida favorita..."
+          value={comida}
+          onChange={(e) => setComida(e.target.value)}
+        />
 
-        <button className='botao_cadastro'>Cadastrar</button>
-
-      </form> 
+        <button className="botao_cadastro" type="submit">
+          Cadastrar
+        </button>
+      </form>
     </div>
-  )
+  );
 }
 
 function App() {
-  const [todos, setTodos] = useState([
-    {
-      id: 1,
-      nome: "João da Silva",
-      CPF: "111.111.111-11",
-      aniversario: "03/08",
-      comida: "arroz",
-      isCompleted: false,
-    },
-    {
-      id: 2,
-      nome: "Maria da Silva",
-      CPF: "111.111.111-11",
-      aniversario: "03/02",
-      comida: "feijão",
-      isCompleted: false,
-    },
-    {
-      id: 3,
-      nome: "Pedro da Silva",
-      CPF: "111.111.111-11",
-      aniversario: "26/09",
-      comida: "arroz",
-      isCompleted: false,
+  const [users, setUsers] = useState([]);
+  const [onEdit, setOnEdit] = useState(null);
+
+  useEffect(() => {
+    getUsers();
+  }, []);
+
+  const getUsers = async () => {
+    try {
+      const res = await axios.get("http://localhost:5174/api/user");
+      setUsers(res.data.sort((a, b) => (a.nome > b.nome ? 1 : -1)));
+    } catch (error) {
+      toast.error(error.message);
     }
-  ])
-
-  const addTodo = (nome, CPF, aniversario, comida) => {
-    const newTodos = [...todos, {
-        id: Math.floor(Math.random() * 1000),
-        nome,
-        CPF,
-        aniversario,
-        comida,
-      },
-    ];
-
-    setTodos(newTodos);
   };
-  
-  const removeTodo = (id) => {
-    const newTodos = [...todos];
-    const filteredTodos = newTodos.filter(todo => 
-      todo.id !== id ? todo : null
-      );
-    setTodos(filteredTodos);
-  }
 
-  return <div className="app">
-    <h1>
-      Cadastro Clientes
-    </h1>
+  const addTodo = async (nome, CPF, aniversario, comida) => {
+    try {
+      const res = await axios.post("http://localhost:5174/api/user", { nome, CPF, aniversario, comida });
+      setUsers([...users, res.data]);
+      toast.success('Usuário cadastrado com sucesso!');
+    } catch (error) {
+      toast.error(error.message);
+    }
+  };
 
-    <MyForm addTodo={addTodo}/>
+  const removeTodo = async (id) => {
+    try {
+      await axios.delete(`http://localhost:5174/api/user/${id}`);
+      const newUsers = users.filter((user) => user.id !== id);
+      setUsers(newUsers);
+      toast.success('Usuário excluído com sucesso!');
+    } catch (error) {
+      toast.error(error.message);
+    }
+  };
 
-    <h1>
-      Clientes Cadastrados
-    </h1>
+  const editTodo = (user) => {
+    setOnEdit(user);
+  };
 
-    <div className="todos-list">
-      {todos.map((todo) => (
-        <Todo key={todo.id} todo={todo} removeTodo={removeTodo}/>
-      ))}
+  const handleEditSubmit = async (editedUser) => {
+    try {
+      const res = await axios.put(`http://localhost:5174/api/user/${editedUser.id}`, editedUser);
+      const updatedUsers = users.map((user) => (user.id === editedUser.id ? res.data : user));
+      setUsers(updatedUsers);
+      setOnEdit(null);
+      toast.success('Usuário editado com sucesso!');
+    } catch (error) {
+      toast.error(error.message);
+    }
+  };
+
+  return (
+    <div className="app">
+      <h1>Cadastro Clientes</h1>
+
+      <MyForm addTodo={addTodo} />
+      <ToastContainer autoClose={3000} position={toast.POSITION.BOTTOM_LEFT} />
+
+      <h1>Clientes Cadastrados</h1>
+
+      <div className="todos-list">
+        {users.map((user) => (
+          <Todo key={user.id} user={user} removeTodo={removeTodo} editTodo={editTodo} />
+        ))}
+      </div>
+
+      {onEdit && (
+        <EditPopup user={onEdit} onSubmit={handleEditSubmit} onCancel={() => setOnEdit(null)} />
+      )}
     </div>
-
-  </div>
+  );
 }
 
-function Todo({todo, removeTodo}){
-  return(
+function Todo({ user, removeTodo, editTodo }) {
+  return (
     <div className="todo">
       <div className="content">
-        <h2>{todo.id}- {todo.nome}</h2>
-        <p>CPF: {todo.CPF}</p>
-        <p>Aniversário: {todo.aniversario}</p>
-        <p>Comida favorita: {todo.comida}</p>
-        <button className='complete'>Editar</button>
-        <button className='remove'onClick={() => removeTodo(todo.id)}>X</button>
+        <h2>
+          {user.id}- {user.nome}
+        </h2>
+        <p>CPF: {user.CPF}</p>
+        <p>Aniversário: {user.aniversario}</p>
+        <p>Comida favorita: {user.comida}</p>
+        <button className="complete" onClick={() => editTodo(user)}>
+          Editar
+        </button>
+        <button className="remove" onClick={() => removeTodo(user.id)}>
+          X
+        </button>
       </div>
     </div>
-  )
+  );
 }
 
-export default App
+function EditPopup({ user, onSubmit, onCancel }) {
+  const [editedUser, setEditedUser] = useState({ ...user });
+
+  const handleEditSubmit = (e) => {
+    e.preventDefault();
+    onSubmit(editedUser);
+  };
+
+  return (
+    <div className="edit-popup">
+      <form onSubmit={handleEditSubmit}>
+        <label>Nome</label>
+        <input
+          type="text"
+          value={editedUser.nome}
+          onChange={(e) => setEditedUser({ ...editedUser, nome: e.target.value })}
+        />
+
+        <label>CPF</label>
+        <input
+          type="text"
+          value={editedUser.CPF}
+          onChange={(e) => setEditedUser({ ...editedUser, CPF: e.target.value })}
+        />
+
+        <label>Data de Aniversário</label>
+        <input
+          type="text"
+          value={editedUser.aniversario}
+          onChange={(e) => setEditedUser({ ...editedUser, aniversario: e.target.value })}
+        />
+
+        <label>Comida Favorita</label>
+        <input
+          type="text"
+          value={editedUser.comida}
+          onChange={(e) => setEditedUser({ ...editedUser, comida: e.target.value })}
+        />
+
+        <button type="submit">Salvar</button>
+        <button type="button" onClick={onCancel}>
+          Cancelar
+        </button>
+      </form>
+    </div>
+  );
+}
+
+export default App;

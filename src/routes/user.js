@@ -1,6 +1,8 @@
-const router = require("express").Router();
+import express from "express";
 
-const userControler = require("../controlers/userControler");
+const router = express.Router();
+
+const userControler = require("../controlers/userController");
 
 router.route("/user").post((req, res) => userControler.create(req, res));
 
