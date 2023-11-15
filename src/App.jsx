@@ -10,6 +10,7 @@ function MyForm({ addTodo }) {
   const [comida, setComida] = useState('');
 
   const handleSubmit = async (e) => {
+    console.log("teste");
     e.preventDefault();
     if (!name || !CPF) {
       toast.error('Nome e CPF são campos obrigatórios.');
@@ -95,17 +96,18 @@ function App() {
     } catch (error) {
       toast.error(error.message);
     }
+    location.reload();
   };
 
-  const removeTodo = async (id) => {
+  const removeTodo = async (user) => {
     try {
-      await axios.delete(`http://localhost:5174/api/user/${id}`);
-      const newUsers = users.filter((user) => user.id !== id);
-      setUsers(newUsers);
+      console.log(user);
+      await axios.delete(`http://localhost:5174/api/user/${user._id}`, user);
       toast.success('Usuário excluído com sucesso!');
     } catch (error) {
       toast.error(error.message);
     }
+    location.reload();
   };
 
   const editTodo = (user) => {
@@ -114,7 +116,7 @@ function App() {
 
   const handleEditSubmit = async (editedUser) => {
     try {
-      const res = await axios.put(`http://localhost:5174/api/user/${editedUser.id}`, editedUser);
+      const res = await axios.put(`http://localhost:5174/api/user/${editedUser._id}`, editedUser);
       const updatedUsers = users.map((user) => (user.id === editedUser.id ? res.data : user));
       setUsers(updatedUsers);
       setOnEdit(null);
@@ -122,6 +124,7 @@ function App() {
     } catch (error) {
       toast.error(error.message);
     }
+    location.reload();
   };
 
   return (
@@ -151,15 +154,15 @@ function Todo({ user, removeTodo, editTodo }) {
     <div className="todo">
       <div className="content">
         <h2>
-          {user.id}- {user.nome}
+         {user.nome}
         </h2>
         <p>CPF: {user.CPF}</p>
-        <p>Aniversário: {user.aniversario}</p>
+        <p>Aniversário: {user.dataNasc}</p>
         <p>Comida favorita: {user.comida}</p>
         <button className="complete" onClick={() => editTodo(user)}>
           Editar
         </button>
-        <button className="remove" onClick={() => removeTodo(user.id)}>
+        <button className="remove" onClick={() => removeTodo(user)}>
           X
         </button>
       </div>
@@ -178,9 +181,11 @@ function EditPopup({ user, onSubmit, onCancel }) {
   return (
     <div className="edit-popup">
       <form onSubmit={handleEditSubmit}>
+        <h2>Editar cliente: {editedUser.nome}</h2>
         <label>Nome</label>
         <input
           type="text"
+          placeholder="Insira seu nome..."
           value={editedUser.nome}
           onChange={(e) => setEditedUser({ ...editedUser, nome: e.target.value })}
         />
@@ -188,6 +193,7 @@ function EditPopup({ user, onSubmit, onCancel }) {
         <label>CPF</label>
         <input
           type="text"
+          placeholder="Insira seu CPF..."
           value={editedUser.CPF}
           onChange={(e) => setEditedUser({ ...editedUser, CPF: e.target.value })}
         />
@@ -195,21 +201,22 @@ function EditPopup({ user, onSubmit, onCancel }) {
         <label>Data de Aniversário</label>
         <input
           type="text"
-          value={editedUser.aniversario}
-          onChange={(e) => setEditedUser({ ...editedUser, aniversario: e.target.value })}
+          placeholder="Insira sua data de aniversário..."
+          value={editedUser.dataNasc}
+          onChange={(e) => setEditedUser({ ...editedUser, dataNasc: e.target.value })}
         />
 
         <label>Comida Favorita</label>
         <input
           type="text"
+          placeholder="Insira sua comida favorita..."
           value={editedUser.comida}
           onChange={(e) => setEditedUser({ ...editedUser, comida: e.target.value })}
         />
-
-        <button type="submit">Salvar</button>
-        <button type="button" onClick={onCancel}>
-          Cancelar
-        </button>
+        <div className="buttomEdit">
+          <button className="complete" type="submit">Salvar</button>
+          <button className="remove" type="button" onClick={onCancel}>Cancelar</button>
+        </div>
       </form>
     </div>
   );

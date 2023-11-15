@@ -43,6 +43,7 @@ input{
   padding: 10px;
   font-size: 1rem;
   margin-bottom: 20px;
+  width: 100%;
 }
 
 input:focus {
@@ -115,4 +116,12 @@ button:hover{
   padding: 10px;
   margin-bottom: 10px;
   border-radius: 5px;
+}
+
+.edit-popup{
+  margin-top: 50px;
+}
+
+.buttomEdit{
+ text-align: center;
 }

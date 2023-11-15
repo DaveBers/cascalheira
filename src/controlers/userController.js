@@ -3,12 +3,12 @@ const {User: userModel} = require("../models/users");
 const userControler = {
 
     create: async(req,res) => {
+        console.log(req.body)
         try{
             const user ={
-                id: req.body.id,
                 nome: req.body.nome,
                 CPF: req.body.CPF,
-                dataNasc: req.body.dataNasc,
+                aniversario: req.body.aniversario,
                 comida: req.body.comida
             };
             console.log(user)
@@ -29,61 +29,35 @@ const userControler = {
             console.log(error);
         }
     },
-    get: async (req, res) =>{
-        try {
-            const id = req.params.id;
-            const user = await userModel.findById(id);
-
-            if (!user) {
-                res.status(404).json({msg: "Serviço não encontrado."});
-                return;
-            }
-
-            res.json(user);
-        } catch (error) {
-            console.log(error);
-        }
-    },
     delete: async(req, res) =>{
         try {
-            
-            const id= req.params.id;
-
-            const user= await userModel.findById(id);
+            console.log(req.body);
 
             if (!user) {
-                res.status(404).json({msg: "Serviço não encontrado."});
+                res.status(404).json({msg: "Usuário não encontrado."});
                 return;
             }
 
-            const deletedUser = await userModel.findByIdAndDelete(id);
-
-            res.status(200).json({deletedUser, msg: "Serviço excluido com sucesso!"});
+            res.status(200).json({deletedUser, msg: "Usuário excluido com sucesso!"});
 
         } catch (error) {
             console.log(error);
         }
     },
     update: async(req, res) =>{
-
-        const id = req.params.id
-
         const user ={
-            id: req.body.id,
             nome: req.body.nome,
             CPF: req.body.CPF,
             aniversario: req.body.aniversario,
-            comidaFavorita: req.body.comidaFavorita
+            comida: req.body.comidaFavorita
         };
 
-        const updatedUser = await userModel.findByIdAndUpdate(id, user)
-
         if (!updatedUser) {
-            res.status(404).json({msg: "Serviço não encontrado."});
+            res.status(404).json({msg: "Usuário não encontrado."});
             return;
         }
 
-        res.status(200).json({user, msg: "Serviço atualizado com sucesso!"})
+        res.status(200).json({user, msg: "Usuário atualizado com sucesso!"})
     }
 };
 
